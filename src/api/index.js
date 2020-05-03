@@ -111,7 +111,6 @@ router.post('/follow/:idnum', async (req, res) => {
         let reqBody = req.body
 
         if (await authenticate(reqBody)) {  
-            let blocked = await checkBlocked(reqBody, idnum)
             if (!(await checkBlocked(reqBody, idnum))) {
 
                 let follower = await Identity.selectByHandleAndPassword(reqBody)
@@ -282,6 +281,46 @@ router.post('/reprint/:sidnum', async (req, res) => {
                 }
             } else {
                 res.send({"status": "0", "error": "story not found"})
+            }
+        } else {            
+            res.send({'status': '-10', 'error': 'Invalid credentials'})
+        }
+    } catch(err) {
+        console.log(err.toString())
+        res.send({'status': '-2'})
+    }
+})
+
+
+// Endpoint for creating a story, protected by authentication
+router.post('/suggestions', async (req, res) => {
+    try {
+        let reqBody = req.body
+
+        if (await authenticate(reqBody)) {  
+            let identity = await Identity.selectByHandleAndPassword(reqBody)
+            if (identity.length > 0) {
+                let suggestions = await Identity.selectSuggestions(identity[0].idnum)  
+                let output = {}
+                let idnums = []
+                let handles = []
+
+                for (let i=0; i<suggestions.length; i++) {                    
+                    idnums.push(suggestions[i].idnum)
+                    handles.push(suggestions[i].handle)
+                }
+
+                if (suggestions.length > 0) {
+                    output.status = suggestions.length.toString()
+                    output.idnums = idnums.join()
+                    output.handles = handles.join()
+                } else {
+                    output = {"status": "0", "error": "no suggestions"}
+                }
+
+                res.send(output)
+            } else {
+                res.send({"status": "0", "error": "DNE"})
             }
         } else {            
             res.send({'status': '-10', 'error': 'Invalid credentials'})

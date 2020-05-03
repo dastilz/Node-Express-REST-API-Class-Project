@@ -29,6 +29,22 @@ const selectByHandleAndPassword = async (req) => {
     .then((data) => data[0])
 }
 
+const selectSuggestions = async (idnum) => {
+    return await knex.raw(
+        "SELECT Identity2.* FROM Identity AS Identity1 " +
+            "INNER JOIN Follows AS Follows1 " +
+                "ON Identity1.idnum = Follows1.follower " +
+            "INNER JOIN Follows AS Follows2 " +
+                "ON Follows1.followed = Follows2.follower " +
+            "INNER JOIN Identity AS Identity2 " +
+                "ON Follows2.followed = Identity2.idnum " +
+            "WHERE Identity1.idnum = ? AND NOT Follows2.followed = ? " +
+                "AND Follows2.followed NOT IN (SELECT Follows3.followed FROM Follows AS Follows3 WHERE Follows3.follower = ?) LIMIT 4",
+        [idnum, idnum, idnum]
+    )
+    .then((data) => data[0])
+}
+
 module.exports = {
-    getBdateByIdnum, insert, select, selectByHandleAndPassword
+    getBdateByIdnum, insert, select, selectByHandleAndPassword, selectSuggestions
 }
