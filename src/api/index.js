@@ -291,8 +291,7 @@ router.post('/reprint/:sidnum', async (req, res) => {
     }
 })
 
-
-// Endpoint for creating a story, protected by authentication
+// Endpoint for offering suggestions based off of mutual followers
 router.post('/suggestions', async (req, res) => {
     try {
         let reqBody = req.body
@@ -319,6 +318,30 @@ router.post('/suggestions', async (req, res) => {
                 }
 
                 res.send(output)
+            } else {
+                res.send({"status": "0", "error": "DNE"})
+            }
+        } else {            
+            res.send({'status': '-10', 'error': 'Invalid credentials'})
+        }
+    } catch(err) {
+        console.log(err.toString())
+        res.send({'status': '-2'})
+    }
+
+})
+
+// Endpoint for offering a  based off of mutual followers
+router.post('/timeline', async (req, res) => {
+    try {
+        let reqBody = req.body
+
+        if (await authenticate(reqBody)) {  
+            let identity = await Identity.selectByHandleAndPassword(reqBody)
+            if (identity.length > 0) {
+                let timeline = await Story.selectTimeline(reqBody, identity[0].idnum)  
+
+                res.send(timeline[0])
             } else {
                 res.send({"status": "0", "error": "DNE"})
             }

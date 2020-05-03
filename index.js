@@ -4,6 +4,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 
 const app = express()
+const PORT = 9990
 
 app.use(cors())
 
@@ -15,4 +16,4 @@ app.use(bodyParser.urlencoded({
 
 app.use('/api', apiRoute)
 
-app.listen(9990, () => console.log("CS405 Project by David Stilz listening on http://localhost:9990"))
+app.listen(PORT, () => console.log(`CS405 Project by David Stilz listening on http://localhost:${PORT}`))
