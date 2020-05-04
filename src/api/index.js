@@ -49,13 +49,20 @@ const authenticate = async (req) => {
 }
 
 const checkBlocked = async (req, blockedId) => {
-    let identity = await Identity.selectByHandleAndPassword(req)
+    let block = await Block.select(req, blockedId)
+    return block.length > 0
+}
 
-    if (identity.length > 0) {
-        let block = await Block.select(identity[0].idnum, blockedId)
-        return block.length > 0
+const handleError = async (err, res) => {
+    errStr = err.toString()    
+    console.log(errStr)
+
+    if (errStr.includes('ER_DUP_ENTRY')) {
+        res.send({'status': '-2', 'error': 'SQL Contraint Exception'})
+    } else if (errStr.includes('Undefined binding(s)')) {        
+        res.send({'status': '-2', 'error': 'Undefined request parameters'})
     } else {
-        return false
+        res.send({'status': '404', 'error': errStr})
     }
 }
 
@@ -67,8 +74,7 @@ router.post('/createUser', async (req, res) => {
         res.status(200).send({"status": id})
 
     } catch(err) {
-        console.log(err.toString())
-        res.send({'status': '-2'})
+        handleError(err, res)
     }
 })
 
@@ -79,18 +85,14 @@ router.post('/seeUser/:idnum', async (req, res) => {
         let idnum = req.params.idnum
 
         if (await authenticate(reqBody)) {
-            if (!(await checkBlocked(reqBody, idnum))) {
-                let identity = await Identity.select(idnum)
+            let identity = await Identity.select(reqBody, idnum)
 
-                if (identity.length > 0) {
-                    let output = Object.assign({'status': '1'}, identity[0])
-                    output.bdate = output.bdate.toISOString().substring(0,10)   
-                    output.joined = output.joined.toISOString().substring(0,10)
-                    
-                    res.status(200).send(output)
-                } else {
-                    res.send({})
-                }
+            if (identity.length > 0) {
+                let output = Object.assign({'status': '1'}, identity[0])
+                output.bdate = output.bdate.toISOString().substring(0,10)   
+                output.joined = output.joined.toISOString().substring(0,10)
+                
+                res.status(200).send(output)
             } else {
                 res.send({})
             }
@@ -98,6 +100,88 @@ router.post('/seeUser/:idnum', async (req, res) => {
             res.send({'status': '-10', 'error': 'Invalid credentials'})
         }
 
+    } catch(err) {
+        handleError(err, res)
+    }
+})
+
+// Endpoint for offering suggestions based off of mutual followers
+router.post('/suggestions', async (req, res) => {
+    try {
+        let reqBody = req.body
+
+        if (await authenticate(reqBody)) {  
+            let suggestions = await Identity.selectSuggestions(reqBody)  
+            let output = {}
+            let idnums = []
+            let handles = []
+
+            for (let i=0; i<suggestions.length; i++) {                    
+                idnums.push(suggestions[i].idnum)
+                handles.push(suggestions[i].handle)
+            }
+
+            if (suggestions.length > 0) {
+                output.status = suggestions.length.toString()
+                output.idnums = idnums.join()
+                output.handles = handles.join()
+            } else {
+                output = {"status": "0", "error": "no suggestions"}
+            }
+
+            res.send(output)
+        } else {            
+            res.send({'status': '-10', 'error': 'Invalid credentials'})
+        }
+    } catch(err) {
+        handleError(err, res)
+    }
+})
+
+// Endpoint for creating a story, protected by authentication
+router.post('/poststory', async (req, res) => {
+    try {
+        let reqBody = req.body
+
+        if (await authenticate(reqBody)) {  
+            if (reqBody.expires == undefined) {
+                reqBody.expires = null
+            }
+            await Story.insert(reqBody) 
+            res.send({'status': '1'})
+        } else {            
+            res.send({'status': '-10', 'error': 'Invalid credentials'})
+        }
+
+    } catch(err) {
+        handleError(err, res)
+    }
+})
+
+// Endpoint for creating a story, protected by authentication
+router.post('/reprint/:sidnum', async (req, res) => {
+    try {
+        let reqBody = req.body
+        let sidnum = req.params.sidnum
+
+        if (await authenticate(reqBody)) {  
+            let story = await Story.select(sidnum)
+            if (story.length > 0) {
+                if (!(blocked = await checkBlocked(reqBody, story[0].idnum))) {
+                    if (reqBody.likeit == undefined) {
+                        reqBody.likeit = false
+                    }
+                    await Reprint.insert(reqBody, sidnum)  
+                    res.send({"status": "1"})
+                } else {
+                    res.send({"status": "0", "error": "blocked"})
+                }
+            } else {
+                res.send({"status": "0", "error": "story not found"})
+            }
+        } else {            
+            res.send({'status': '-10', 'error': 'Invalid credentials'})
+        }
     } catch(err) {
         console.log(err.toString())
         res.send({'status': '-2'})
@@ -112,17 +196,8 @@ router.post('/follow/:idnum', async (req, res) => {
 
         if (await authenticate(reqBody)) {  
             if (!(await checkBlocked(reqBody, idnum))) {
-
-                let follower = await Identity.selectByHandleAndPassword(reqBody)
-                let followed = await Identity.select(idnum) 
-    
-                if (follower.length > 0 && followed.length > 0) {
-                    await Follows.insert(follower[0].idnum, idnum) 
-                    res.send({"status": "1"})
-        
-                } else {
-                    res.send({"status": "0", "error": "DNE"})
-                }
+                await Follows.insert(reqBody, idnum) 
+                res.send({"status": "1"})
             } else {
                 res.send({"status": "0", "error": "blocked"})
             }
@@ -143,20 +218,11 @@ router.post('/unfollow/:idnum', async (req, res) => {
         let reqBody = req.body
 
         if (await authenticate(reqBody)) {  
-
-            let follower = await Identity.selectByHandleAndPassword(reqBody)
-            let followed = await Identity.select(idnum) 
-
-            if (follower.length > 0 && followed.length > 0) {
-                let deleteStatus = await Follows.del(follower[0].idnum, idnum)
-                if (deleteStatus.affectedRows > 0) {
-                    res.send({"status": "1"})
-                } else {
-                    res.send({"status": "0", "error": "not currently followed"})
-                }
-    
+            let deleteStatus = await Follows.del(reqBody, idnum)
+            if (deleteStatus.affectedRows > 0) {
+                res.send({"status": "1"})
             } else {
-                res.send({"status": "0", "error": "DNE"})
+                res.send({"status": "0", "error": "not currently followed"})
             }
         } else {            
             res.send({'status': '-10', 'error': 'Invalid credentials'})
@@ -176,11 +242,8 @@ router.post('/block/:idnum', async (req, res) => {
 
         if (await authenticate(reqBody)) {  
 
-            let blocker = await Identity.selectByHandleAndPassword(reqBody)
-            let blocked = await Identity.select(idnum) 
-
             if (blocker.length > 0 && blocked.length > 0) {
-                await Block.insert(blocker[0].idnum, idnum) 
+                await Block.insert(reqBody, idnum) 
                 res.send({"status": "1"})
     
             } else {
@@ -203,48 +266,11 @@ router.post('/unblock/:idnum', async (req, res) => {
         let reqBody = req.body
 
         if (await authenticate(reqBody)) {  
-
-            let blocker = await Identity.selectByHandleAndPassword(reqBody)
-            let blocked = await Identity.select(idnum) 
-
-            if (blocker.length > 0 && blocked.length > 0) {
-                let deleteStatus = await Block.del(blocker[0].idnum, idnum)
-                if (deleteStatus.affectedRows > 0) {
-                    res.send({"status": "1"})
-                } else {
-                    res.send({"status": "0", "error": "not currently blocked"})
-                }
-    
-            } else {
-                res.send({"status": "0", "error": "DNE"})
-            }
-        } else {            
-            res.send({'status': '-10', 'error': 'Invalid credentials'})
-        }
-
-    } catch(err) {
-        console.log(err.toString())
-        res.send({'status': '-2'})
-    }
-})
-
-// Endpoint for creating a story, protected by authentication
-router.post('/poststory', async (req, res) => {
-    try {
-        let reqBody = req.body
-
-        if (await authenticate(reqBody)) {  
-
-            let identity = await Identity.selectByHandleAndPassword(reqBody)
-
-            if (identity.length > 0) {
-                if (reqBody.expires == undefined) {
-                    reqBody.expires = null
-                }
-                await Story.insert(reqBody, identity[0].idnum)  
+            let deleteStatus = await Block.del(reqBody, idnum)
+            if (deleteStatus.affectedRows > 0) {
                 res.send({"status": "1"})
             } else {
-                res.send({"status": "0", "error": "DNE"})
+                res.send({"status": "0", "error": "not currently blocked"})
             }
         } else {            
             res.send({'status': '-10', 'error': 'Invalid credentials'})
@@ -254,81 +280,6 @@ router.post('/poststory', async (req, res) => {
         console.log(err.toString())
         res.send({'status': '-2'})
     }
-})
-
-// Endpoint for creating a story, protected by authentication
-router.post('/reprint/:sidnum', async (req, res) => {
-    try {
-        let reqBody = req.body
-        let sidnum = req.params.sidnum
-
-        if (await authenticate(reqBody)) {  
-            let story = await Story.select(sidnum)
-            if (story.length > 0) {
-                if (!(blocked = await checkBlocked(reqBody, story[0].idnum))) {
-                    let identity = await Identity.selectByHandleAndPassword(reqBody)
-                    if (identity.length > 0) {
-                        if (reqBody.likeit == undefined) {
-                            reqBody.likeit = false
-                        }
-                        await Reprint.insert(reqBody, identity[0].idnum, sidnum)  
-                        res.send({"status": "1"})
-                    } else {
-                        res.send({"status": "0", "error": "DNE"})
-                    }
-                } else {
-                    res.send({"status": "0", "error": "blocked"})
-                }
-            } else {
-                res.send({"status": "0", "error": "story not found"})
-            }
-        } else {            
-            res.send({'status': '-10', 'error': 'Invalid credentials'})
-        }
-    } catch(err) {
-        console.log(err.toString())
-        res.send({'status': '-2'})
-    }
-})
-
-// Endpoint for offering suggestions based off of mutual followers
-router.post('/suggestions', async (req, res) => {
-    try {
-        let reqBody = req.body
-
-        if (await authenticate(reqBody)) {  
-            let identity = await Identity.selectByHandleAndPassword(reqBody)
-            if (identity.length > 0) {
-                let suggestions = await Identity.selectSuggestions(identity[0].idnum)  
-                let output = {}
-                let idnums = []
-                let handles = []
-
-                for (let i=0; i<suggestions.length; i++) {                    
-                    idnums.push(suggestions[i].idnum)
-                    handles.push(suggestions[i].handle)
-                }
-
-                if (suggestions.length > 0) {
-                    output.status = suggestions.length.toString()
-                    output.idnums = idnums.join()
-                    output.handles = handles.join()
-                } else {
-                    output = {"status": "0", "error": "no suggestions"}
-                }
-
-                res.send(output)
-            } else {
-                res.send({"status": "0", "error": "DNE"})
-            }
-        } else {            
-            res.send({'status': '-10', 'error': 'Invalid credentials'})
-        }
-    } catch(err) {
-        console.log(err.toString())
-        res.send({'status': '-2'})
-    }
-
 })
 
 // Endpoint for offering a  based off of mutual followers

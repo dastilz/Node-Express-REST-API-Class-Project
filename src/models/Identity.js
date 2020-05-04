@@ -13,10 +13,13 @@ const insert = async (req) => {
     .then((data) => data[0])
 }
 
-const select = async (idnum) => {
+const select = async (req, idnum) => {
     return await knex.raw(
-        "SELECT handle, fullname, location, email, bdate, joined FROM Identity WHERE idnum = ?",
-        [idnum]
+        "SELECT Identity1.fullname, Identity1.location, Identity1.email, Identity1.bdate, Identity1.joined FROM Identity AS Identity1 " +
+            "INNER JOIN Identity AS Identity2 " +
+                "ON Identity2.handle = ? AND Identity2.password = ? " +
+            "WHERE Identity1.idnum = ? AND Identity2.idnum NOT IN (SELECT Block.blocked FROM Block WHERE Block.idnum = Identity1.idnum)",
+        [req.handle, req.password, idnum]
     )
     .then((data) => data[0])
 }
@@ -29,18 +32,20 @@ const selectByHandleAndPassword = async (req) => {
     .then((data) => data[0])
 }
 
-const selectSuggestions = async (idnum) => {
+const selectSuggestions = async (req) => {
     return await knex.raw(
-        "SELECT Identity2.* FROM Identity AS Identity1 " +
+        "SELECT Identity3.* FROM Identity AS Identity1 " +        
+            "INNER JOIN Identity AS Identity2 " +
+                "ON Identity2.handle = ? AND Identity2.password = ?" +
             "INNER JOIN Follows AS Follows1 " +
                 "ON Identity1.idnum = Follows1.follower " +
             "INNER JOIN Follows AS Follows2 " +
                 "ON Follows1.followed = Follows2.follower " +
-            "INNER JOIN Identity AS Identity2 " +
-                "ON Follows2.followed = Identity2.idnum " +
-            "WHERE Identity1.idnum = ? AND NOT Follows2.followed = ? " +
-                "AND Follows2.followed NOT IN (SELECT Follows3.followed FROM Follows AS Follows3 WHERE Follows3.follower = ?) LIMIT 4",
-        [idnum, idnum, idnum]
+            "INNER JOIN Identity AS Identity3 " +
+                "ON Follows2.followed = Identity3.idnum " +
+            "WHERE Identity1.idnum = Identity2.idnum AND NOT Follows2.followed = Identity2.idnum " +
+                "AND Follows2.followed NOT IN (SELECT Follows3.followed FROM Follows AS Follows3 WHERE Follows3.follower = Identity2.idnum) LIMIT 4",
+        [req.handle, req.password]
     )
     .then((data) => data[0])
 }

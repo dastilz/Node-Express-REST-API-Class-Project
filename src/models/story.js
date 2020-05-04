@@ -1,9 +1,9 @@
 const knex = require('../services/knex');  // define database based on above
 
-const insert = async (req, idnum) => {
+const insert = async (req) => {
     return await knex.raw(
-        "INSERT INTO Story (idnum, chapter, url, expires, tstamp) VALUES (?,?,?,?,?)", 
-        [idnum, req.chapter, req.url, req.expires, new Date().toISOString().slice(0, 19).replace('T', ' ')] 
+        "INSERT INTO Story (idnum, chapter, url, expires, tstamp) VALUES ((SELECT idnum FROM Identity WHERE handle = ? AND password = ?),?,?,?,?)", 
+        [req.handle, req.password, req.chapter, req.url, req.expires, new Date().toISOString().slice(0, 19).replace('T', ' ')] 
     )
     .then((data) => data[0])
 }

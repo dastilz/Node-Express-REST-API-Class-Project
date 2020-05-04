@@ -1,25 +1,25 @@
 const knex = require('../services/knex');  // define database based on above
 
-const select = async (blockerId, blockedId) => {
+const select = async (req, blockedId) => {
     return await knex.raw(
-        "SELECT * FROM Block WHERE idnum = ? AND blocked = ?", 
-        [blockerId, blockedId]
+        "SELECT * FROM Block WHERE idnum = (SELECT idnum FROM Identity WHERE handle = ? AND password = ?) AND blocked = ?", 
+        [req.handle, req.password, blockedId]
     )
     .then((data) => data[0])
 }
 
-const insert = async (blockerId, blockedId) => {
+const insert = async (req, blockedId) => {
     return await knex.raw(
-        "INSERT INTO Block (idnum, blocked) VALUES (?,?)", 
-        [blockerId, blockedId] 
+        "INSERT INTO Block (idnum, blocked) VALUES ((SELECT idnum FROM Identity WHERE handle = ? AND password = ?),?)", 
+        [req.handle, req.password, blockedId] 
     )
     .then((data) => data[0])
 }
 
-const del = async (blockerId, blockedId) => {
+const del = async (req, blockedId) => {
     return await knex.raw(
-        "DELETE FROM Block WHERE idnum = ? AND blocked = ?", 
-        [blockerId, blockedId] 
+        "DELETE FROM Block WHERE idnum = (SELECT idnum FROM Identity WHERE handle = ? AND password = ?) AND blocked = ?", 
+        [req.handle, req.password, blockedId] 
     )
     .then((data) => data[0])
 }

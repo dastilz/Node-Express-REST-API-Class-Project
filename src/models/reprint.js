@@ -1,9 +1,9 @@
 const knex = require('../services/knex');  // define database based on above
 
-const insert = async (req, idnum, sidnum) => {
+const insert = async (req, sidnum) => {
     return await knex.raw(
-        "INSERT INTO Reprint (idnum, sidnum, likeit) VALUES (?,?,?)", 
-        [idnum, sidnum, req.likeit] 
+        "INSERT INTO Reprint (idnum, sidnum, likeit) VALUES ((SELECT idnum FROM Identity WHERE handle = ? AND password = ?),?,?)", 
+        [req.handle, req.password, sidnum, req.likeit] 
     )
     .then((data) => data[0])
 }
