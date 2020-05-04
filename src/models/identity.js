@@ -32,7 +32,7 @@ const selectByHandleAndPassword = async (req) => {
 
 const selectSuggestions = async (req) => {
     return await knex.raw(
-        "SELECT Identity2.* FROM Identity AS Identity1 " +        
+        "SELECT DISTINCT Identity2.* FROM Identity AS Identity1 " +        
             "INNER JOIN Follows AS Follows1 " +
                 "ON Identity1.idnum = Follows1.follower " +
             "INNER JOIN Follows AS Follows2 " +
