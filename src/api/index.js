@@ -315,7 +315,7 @@ router.post('/reprint/:sidnum', async (req, res) => {
             if (story.length > 0) {
 
                 // Check if the story that is being reprinted is blocked by the author
-                if (!(blocked = await checkBlocked(auth, story[0].idnum))) {
+                if (!(blocked = await checkBlocked(auth, reqBody, story[0].idnum))) {
 
                     // Set the likeit field to false if not defined in request
                     if (reqBody.likeit == undefined) {
