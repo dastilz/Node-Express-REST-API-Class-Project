@@ -2,6 +2,9 @@
 const express = require('express');
 const router = express.Router();
 
+// Import config variables
+const config = require('../services/config')
+
 // Import DB models
 const Identity = require('../models/identity')
 const Follows = require('../models/follows')
@@ -53,16 +56,25 @@ const checkBlocked = async (req, blockedId) => {
     return block.length > 0
 }
 
+const checkSubstrings = (arr, str) => {
+    for (item of arr) {
+        if (str.includes(item)) {
+            return true
+        }
+    }
+    return false
+}
+
 const handleError = async (err, res) => {
     errStr = err.toString()    
-    console.log(errStr)
+    console.log('INTERNAL SERVER ERROR:\n' + errStr)
 
-    if (errStr.includes('ER_DUP_ENTRY')) {
-        res.send({'status': '-2', 'error': 'SQL Contraint Exception'})
+    if (checkSubstrings(config.SQL_CONSTRAINT_ERRORS, errStr)) {
+        res.send({'status': '-2', 'error': 'SQL Constraint Exception'})
     } else if (errStr.includes('Undefined binding(s)')) {        
         res.send({'status': '-2', 'error': 'Missing required request parameters'})
     } else {
-        res.send({'status': '404', 'error': errStr})
+        res.send({'status': '500', 'error': errStr})
     }
 }
 
@@ -183,8 +195,7 @@ router.post('/reprint/:sidnum', async (req, res) => {
             res.send({'status': '-10', 'error': 'Invalid credentials'})
         }
     } catch(err) {
-        console.log(err.toString())
-        res.send({'status': '-2'})
+        handleError(err, res)
     }
 })
 
@@ -206,8 +217,7 @@ router.post('/follow/:idnum', async (req, res) => {
         }
 
     } catch(err) {
-        console.log(err.toString())
-        res.send({'status': '-2'})
+        handleError(err, res)
     }
 })
 
@@ -248,8 +258,7 @@ router.post('/block/:idnum', async (req, res) => {
         }
 
     } catch(err) {
-        console.log(err.toString())
-        res.send({'status': '-2'})
+        handleError(err, res)
     }
 })
 
@@ -271,8 +280,7 @@ router.post('/unblock/:idnum', async (req, res) => {
         }
 
     } catch(err) {
-        console.log(err.toString())
-        res.send({'status': '-2'})
+        handleError(err, res)
     }
 })
 
@@ -288,8 +296,7 @@ router.post('/timeline', async (req, res) => {
             res.send({'status': '-10', 'error': 'Invalid credentials'})
         }
     } catch(err) {
-        console.log(err.toString())
-        res.send({'status': '-2'})
+        handleError(err, res)
     }
 })
 

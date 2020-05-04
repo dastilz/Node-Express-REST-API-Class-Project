@@ -1,7 +1,8 @@
 const knex = require('knex')
+const config = require('./config')
 
 // Initialize knex
-knex_instance =
+const knex_instance =
     knex({
         client: 'mysql',
         pool: {
@@ -9,10 +10,10 @@ knex_instance =
             max: 7
         },
         connection: {
-            host: 'localhost',
-            user: 'root',
-            password: 'password',
-            database: 'SMPDB'
+            host: config.host,
+            user: config.user,
+            password: config.password,
+            database: config.database
         },
     });
 
