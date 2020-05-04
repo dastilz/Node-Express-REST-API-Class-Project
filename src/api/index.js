@@ -59,6 +59,7 @@ const authenticate = async (req) => {
 
 // Helper function to check if an account is blocked by another account
 const checkBlocked = async (requester, blockedId) => {
+    console.log(requester, blockedId)
     let block = await Block.select(requester, blockedId)
     return block.length > 0
 }
