@@ -96,10 +96,10 @@ curl -d '{"handle":"@test1", "password":"password", "chapter":"Chapter 1", "url"
 curl -d '{"handle":"@test1", "password":"password", "chapter":"Chapter 2", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 curl -d '{"handle":"@test1", "password":"password", "chapter":"Chapter 3", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 curl -d '{"handle":"@test2", "password":"password", "chapter":"Chapter 4", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
-curl -d '{"handle":"@test2", "password":"password", "chapter":"Chapter 5", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
-curl -d '{"handle":"@test3", "password":"password", "chapter":"Chapter 6", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
-curl -d '{"handle":"@test3", "password":"password", "chapter":"Chapter 7", "url":"http://domain.com", "expires": "2020-05-06"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
-curl -d '{"handle":"@test4", "password":"password", "chapter":"Chapter 8", "url":"http://domain.com", "expires": "2020-05-10"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
+curl -d '{"handle":"@test2", "password":"password", "chapter":"Chapter 5", "url":"http://domain.com", "expires": "2020-05-01}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
+curl -d '{"handle":"@test3", "password":"password", "chapter":"Chapter 6", "url":"http://domain.com", "expires": "2020-05-04"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
+curl -d '{"handle":"@test3", "password":"password", "chapter":"Chapter 7", "url":"http://domain.com", "expires": "2025-05-06"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
+curl -d '{"handle":"@test4", "password":"password", "chapter":"Chapter 8", "url":"http://domain.com", "expires": "2025-05-10"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 
 #HANDLE CREATING STORY ERRORS
 curl -d '{"handle":"@test1", "password":"badpassword", "chapter":"Chapter 1", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
