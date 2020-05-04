@@ -315,6 +315,7 @@ router.post('/reprint/:sidnum', async (req, res) => {
             // If a story is found...
             if (story.length > 0) {
 
+                console.log(auth, story[0].idnum)
                 // Check if the story that is being reprinted is blocked by the author
                 if (!(blocked = await checkBlocked(auth, story[0].idnum))) {
 
