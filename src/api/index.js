@@ -60,7 +60,7 @@ const handleError = async (err, res) => {
     if (errStr.includes('ER_DUP_ENTRY')) {
         res.send({'status': '-2', 'error': 'SQL Contraint Exception'})
     } else if (errStr.includes('Undefined binding(s)')) {        
-        res.send({'status': '-2', 'error': 'Undefined request parameters'})
+        res.send({'status': '-2', 'error': 'Missing required request parameters'})
     } else {
         res.send({'status': '404', 'error': errStr})
     }
@@ -288,14 +288,8 @@ router.post('/timeline', async (req, res) => {
         let reqBody = req.body
 
         if (await authenticate(reqBody)) {  
-            let identity = await Identity.selectByHandleAndPassword(reqBody)
-            if (identity.length > 0) {
-                let timeline = await Story.selectTimeline(reqBody, identity[0].idnum)  
-
-                res.send(timeline[0])
-            } else {
-                res.send({"status": "0", "error": "DNE"})
-            }
+            let timeline = await Story.selectTimeline(reqBody)  
+            res.send(timeline[0])
         } else {            
             res.send({'status': '-10', 'error': 'Invalid credentials'})
         }
