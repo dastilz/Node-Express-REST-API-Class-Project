@@ -18,12 +18,12 @@ router.post('/exampleJSON', (req, res) => {
 })
 
 // Example 'status' endpoint
-router.post('/status', (req, res) => {
+router.get('/status', (req, res) => {
     res.status(200).send({'status': '1'})
 })
 
 // Example 'exampleGETBDATE' endpoint
-router.post('/exampleGETBDATE/:idnum', async (req, res) => {
+router.get('/exampleGETBDATE/:idnum', async (req, res) => {
     try {
         let idnum = req.params.idnum
         let dbRes = await Identity.getBdateByIdnum(idnum)    
