@@ -149,3 +149,11 @@ curl -d '{"handle":"@test6", "password":"password", "newest":"2030-01-01 00:00:0
 
 # HANDLE HAPPY BIRTHDAY ENDPOINT
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/HBD
+
+# HANDLE SEARCH STORY ENDPOINT
+curl -d '{"handle":"@test1", "password":"password", "search": "HAPPY BIRTHDAY", "newest":"2030-01-01 00:00:00", "oldest":"2000-01-01 00:00:00"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/searchstory
+curl -d '{"handle":"@test2", "password":"password", "search": "HAPPY BIRTHDAY", "newest":"2030-01-01 00:00:00", "oldest":"2000-01-01 00:00:00"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/searchstory
+curl -d '{"handle":"@test3", "password":"password", "search": "HAPPY BIRTHDAY", "newest":"2030-01-01 00:00:00", "oldest":"2000-01-01 00:00:00"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/searchstory
+curl -d '{"handle":"@test4", "password":"password", "search": "HAPPY BIRTHDAY", "newest":"2030-01-01 00:00:00", "oldest":"2000-01-01 00:00:00"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/searchstory
+curl -d '{"handle":"@test5", "password":"password", "search": "HAPPY BIRTHDAY", "newest":"2030-01-01 00:00:00", "oldest":"2000-01-01 00:00:00"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/searchstory
+curl -d '{"handle":"@test6", "password":"password", "search": "HAPPY BIRTHDAY", "newest":"2030-01-01 00:00:00", "oldest":"2000-01-01 00:00:00"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/searchstory

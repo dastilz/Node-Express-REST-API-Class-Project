@@ -72,6 +72,7 @@ const selectAllSuggestions = async (requester) => {
     .then((data) => data[0])
 }
 
+// Queries to see if there are any birthdays in the next 7 days of followers
 const selectBirthdays = async (requester) => {
     return await knex.raw(
         "SELECT Identity2.* FROM Identity AS Identity1 " +        
