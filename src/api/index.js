@@ -241,14 +241,8 @@ router.post('/block/:idnum', async (req, res) => {
         let reqBody = req.body
 
         if (await authenticate(reqBody)) {  
-
-            if (blocker.length > 0 && blocked.length > 0) {
-                await Block.insert(reqBody, idnum) 
-                res.send({"status": "1"})
-    
-            } else {
-                res.send({"status": "0", "error": "DNE"})
-            }
+            await Block.insert(reqBody, idnum) 
+            res.send({"status": "1"})    
         } else {            
             res.send({'status': '-10', 'error': 'Invalid credentials'})
         }

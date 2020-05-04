@@ -44,7 +44,8 @@ const selectSuggestions = async (req) => {
             "INNER JOIN Identity AS Identity3 " +
                 "ON Follows2.followed = Identity3.idnum " +
             "WHERE Identity1.idnum = Identity2.idnum AND NOT Follows2.followed = Identity2.idnum " +
-                "AND Follows2.followed NOT IN (SELECT Follows3.followed FROM Follows AS Follows3 WHERE Follows3.follower = Identity2.idnum) LIMIT 4",
+                "AND Follows2.followed NOT IN (SELECT Follows3.followed FROM Follows AS Follows3 WHERE Follows3.follower = Identity2.idnum) " +
+                "AND Identity2.idnum NOT IN (SELECT Block.blocked FROM Block WHERE Block.idnum = Follows2.followed) LIMIT 4",
         [req.handle, req.password]
     )
     .then((data) => data[0])
