@@ -18,5 +18,9 @@
 - Node.js: https://nodejs.org/en/docs/
 - NPM: https://docs.npmjs.com/
 - Node.js MySQL API (MariaDB & MySQL are API-compatible): https://www.npmjs.com/package/mysql
-- Knex.js: http://knexjs.org/
+- Knex.js: https://knexjs.org/
 - Express.js: https://expressjs.com/
+
+## SAMPLE TESTING
+- If you want to see how I tested, I have my API requests written in /test_requests.txt, you can simply copy and paste the entire file to run all requests
+- However, you must go chronologically through the requests or things might not work as I intended

@@ -1,5 +1,6 @@
 const knex = require('../services/knex');  // define database based on above
 
+// Inserts a new reprint
 const insert = async (req, sidnum) => {
     return await knex.raw(
         "INSERT INTO Reprint (idnum, sidnum, likeit, tstamp) VALUES ((SELECT idnum FROM Identity WHERE handle = ? AND password = ?),?,?,?)", 

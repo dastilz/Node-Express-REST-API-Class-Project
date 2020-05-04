@@ -1,7 +1,7 @@
 const knex = require('knex')
 const config = require('./config')
 
-// Initialize knex
+// Initialize knex with config variables
 const knex_instance =
     knex({
         client: 'mysql',

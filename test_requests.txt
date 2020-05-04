@@ -1,6 +1,6 @@
 !!!! READ ME : PLEASE DO THESE API REQUESTS IN CHRONOLOGICAL ORDER TO GET EXPECTED RESULTS !!!!
 
-CREATE ACCOUNTS:
+#CREATE ACCOUNTS:
 curl -d '{"handle":"@test1", "password":"password", "fullname":"Test Name 1", "location":"Test Location 1", "xmail":"test1@test.com", "bdate":"1970-01-01"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/createuser
 curl -d '{"handle":"@test2", "password":"password", "fullname":"Test Name 2", "location":"Test Location 2", "xmail":"test2@test.com", "bdate":"1970-02-01"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/createuser
 curl -d '{"handle":"@test3", "password":"password", "fullname":"Test Name 3", "location":"Test Location 3", "xmail":"test3@test.com", "bdate":"1970-03-01"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/createuser
@@ -8,11 +8,11 @@ curl -d '{"handle":"@test4", "password":"password", "fullname":"Test Name 4", "l
 curl -d '{"handle":"@test5", "password":"password", "fullname":"Test Name 5", "location":"Test Location 5", "xmail":"test5@test.com", "bdate":"1970-05-01"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/createuser
 curl -d '{"handle":"@test6", "password":"password", "fullname":"Test Name 6", "location":"Test Location 6", "xmail":"test6@test.com", "bdate":"1970-06-01"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/createuser
 
-HANDLE ACCOUNT CREATION ERRORS:
+#HANDLE ACCOUNT CREATION ERRORS:
 curl -d '{"handle":"@test6", "password":"password", "fullname":"Test Name 6", "location":"Test Location 6", "xmail":"test6@test.com", "bdate":"1970-06-01"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/createuser
 curl -d '{"handle":"@test7", "fullname":"Test Name 6", "location":"Test Location 6", "xmail":"test6@test.com", "bdate":"1970-06-01"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/createuser
 
-VIEW ACCOUNTS FROM @test1's PERSPECTIVE:
+#VIEW ACCOUNTS FROM @test1's PERSPECTIVE:
 
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/seeuser/1
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/seeuser/2
@@ -21,12 +21,12 @@ curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: applicati
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/seeuser/5
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/seeuser/6
 
-HANDLE VIEW ACCOUNT ERRORS:
+#HANDLE VIEW ACCOUNT ERRORS:
 curl -d '{"handle":"@test1", "password":"badpassword"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/seeuser/6
 curl -d '{"password":"badpassword"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/seeuser/6
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/seeuser/-1
 
-HANDLE FOLLOWING
+#HANDLE FOLLOWING
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/1
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/2
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/3
@@ -41,7 +41,7 @@ curl -d '{"handle":"@test3", "password":"password"}' -H "Content-Type: applicati
 curl -d '{"handle":"@test3", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/5
 curl -d '{"handle":"@test3", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/6
 
-HANDLE BLOCK
+#HANDLE BLOCK
 curl -d '{"handle":"@test6", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/block/1
 curl -d '{"handle":"@test4", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/block/1
 
@@ -51,34 +51,34 @@ curl -d '{"handle":"@test6", "password":"password"}' -H "Content-Type: applicati
 curl -d '{"handle":"@test6", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/block/5
 curl -d '{"handle":"@test6", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/block/6
 
-HANDLE UNBLOCK
+#HANDLE UNBLOCK
 curl -d '{"handle":"@test6", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unblock/2
 curl -d '{"handle":"@test6", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unblock/3
 curl -d '{"handle":"@test6", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unblock/4
 curl -d '{"handle":"@test6", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unblock/5
 curl -d '{"handle":"@test6", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unblock/6
 
-HANDLE UNBLOCK ERRORS
+#HANDLE UNBLOCK ERRORS
 curl -d '{"handle":"@test1", "password":"badpassword"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unblock/1
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unblock/-1
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unblock/1
 
-HANDLE FOLLOW ERRORS
+#HANDLE FOLLOW ERRORS
 curl -d '{"handle":"@test1", "password":"badpassword"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/1
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/-1
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/6
 
-HANDLE UNFOLLOW
+#HANDLE UNFOLLOW
 curl -d '{"handle":"@test3", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unfollow/4
 curl -d '{"handle":"@test3", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unfollow/5
 curl -d '{"handle":"@test3", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unfollow/6
 
-HANDLE UNFOLLOW ERRORS
+#HANDLE UNFOLLOW ERRORS
 curl -d '{"handle":"@test1", "password":"badpassword"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unfollow/1
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unfollow/-1
 curl -d '{"handle":"@test3", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unfollow/3
 
-HANDLE SUGGESTIONS
+#HANDLE SUGGESTIONS
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/suggestions
 curl -d '{"handle":"@test2", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/suggestions
 curl -d '{"handle":"@test3", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/suggestions
@@ -86,11 +86,11 @@ curl -d '{"handle":"@test4", "password":"password"}' -H "Content-Type: applicati
 curl -d '{"handle":"@test5", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/suggestions
 curl -d '{"handle":"@test6", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/suggestions
 
-HANDLE SUGGESTION ERRORS
+#HANDLE SUGGESTION ERRORS
 curl -d '{"handle":"@test1", "password":"badpassword"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/suggestions
 curl -d '{"handle":"@test3"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/suggestions
 
-HANDLE CREATING STORIES
+#HANDLE CREATING STORIES
 curl -d '{"handle":"@test1", "password":"password", "chapter":"Chapter 1", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 curl -d '{"handle":"@test1", "password":"password", "chapter":"Chapter 2", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 curl -d '{"handle":"@test1", "password":"password", "chapter":"Chapter 3", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
@@ -100,11 +100,11 @@ curl -d '{"handle":"@test3", "password":"password", "chapter":"Chapter 6", "url"
 curl -d '{"handle":"@test3", "password":"password", "chapter":"Chapter 7", "url":"http://domain.com", "expires": "2020-05-06"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 curl -d '{"handle":"@test4", "password":"password", "chapter":"Chapter 8", "url":"http://domain.com", "expires": "2020-05-10"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 
-HANDLE CREATING STORY ERRORS
+#HANDLE CREATING STORY ERRORS
 curl -d '{"handle":"@test1", "password":"badpassword", "chapter":"Chapter 1", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 curl -d '{"handle":"@test1", "password":"password", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 
-HANDLE CREATING REPRINTS
+#HANDLE CREATING REPRINTS
 curl -d '{"handle":"@test1", "password":"password", "likeit":true}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/reprint/4
 curl -d '{"handle":"@test2", "password":"password", "likeit":true}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/reprint/1
 curl -d '{"handle":"@test2", "password":"password", "likeit":true}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/reprint/3
@@ -112,12 +112,12 @@ curl -d '{"handle":"@test2", "password":"password", "likeit":true}' -H "Content-
 curl -d '{"handle":"@test3", "password":"password", "likeit":false}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/reprint/5
 curl -d '{"handle":"@test4", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/reprint/7
 
-HANDLE CREATING REPRINT ERRORS
+#HANDLE CREATING REPRINT ERRORS
 curl -d '{"handle":"@test1", "password":"badpassword", "likeit":true}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/reprint/-1
 curl -d '{"handle":"@test1", "password":"password", "likeit":true}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/reprint/8
 curl -d '{"handle":"@test1", "likeit":true}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/reprint/1
 
-RESET FOLLOWS TO NONE TO SET UP TIMELINE ENDPOINT TESTING
+#RESET FOLLOWS TO NONE TO SET UP TIMELINE ENDPOINT TESTING
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unfollow/1
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unfollow/2
 curl -d '{"handle":"@test1, "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unfollow/3
@@ -129,18 +129,18 @@ curl -d '{"handle":"@test2", "password":"password"}' -H "Content-Type: applicati
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unfollow/3
 curl -d '{"handle":"@test5", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unfollow/2
 
-RESET FOLLOWS TO NONE TO SET UP TIMELINE ENDPOINT TESTING
+#RESET FOLLOWS TO NONE TO SET UP TIMELINE ENDPOINT TESTING
 curl -d '{"handle":"@test6", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unblock/1
 curl -d '{"handle":"@test4", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/unblock/1
 
-SET FOLLOWS FOR TIMELINE ENDPOINT TESTING
+#SET FOLLOWS FOR TIMELINE ENDPOINT TESTING
 curl -d '{"handle":"@test1", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/2
 curl -d '{"handle":"@test2", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/1
 curl -d '{"handle":"@test2", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/3
 curl -d '{"handle":"@test3", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/2
 curl -d '{"handle":"@test2", "password":"password"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/follow/4
 
-HANDLE TIMELINE ENDPOINT
+#HANDLE TIMELINE ENDPOINT
 curl -d '{"handle":"@test1", "password":"password", "newest":"2030-01-01 00:00:00", "oldest":"2000-01-01 00:00:00"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/timeline
 curl -d '{"handle":"@test2", "password":"password", "newest":"2030-01-01 00:00:00", "oldest":"2000-01-01 00:00:00"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/timeline
 curl -d '{"handle":"@test3", "password":"password", "newest":"2030-01-01 00:00:00", "oldest":"2000-01-01 00:00:00"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/timeline

@@ -2,18 +2,22 @@ const express = require('express')
 const apiRoute = require('./src/api')
 const cors = require('cors')
 const bodyParser = require('body-parser')
-
+const config = require('./config')
 const app = express()
-const PORT = 9990
 
+// Allow CORS
 app.use(cors())
 
+// Middleware to handle JSON parsing
 app.use(bodyParser.json())
 
+// Allow extended JSON objects (probably not applicable to this project anyway)
 app.use(bodyParser.urlencoded({
     extended: true
 }))
 
+// Route /api to another file to handle
 app.use('/api', apiRoute)
 
-app.listen(PORT, () => console.log(`CS405 Project by David Stilz listening on http://localhost:${PORT}`))
+// Listen on configured port and console log an applicable message
+app.listen(config.PORT, () => console.log(`CS405 Project by David Stilz listening on http://localhost:${config.PORT}`))

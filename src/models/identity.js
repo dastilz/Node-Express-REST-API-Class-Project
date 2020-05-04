@@ -1,10 +1,12 @@
 const knex = require('../services/knex');  // define database based on above
 
+// Gets a birth date by ID
 const getBdateByIdnum = async (idnum) => {
     return await knex.raw("SELECT bdate FROM Identity WHERE idnum = ?", [idnum])
     .then((data) => data[0])
 }
 
+// Inserts a new identity
 const insert = async (req) => {
     return await knex.raw(
         "INSERT INTO Identity (handle, password, fullname, location, email, bdate, joined) VALUES (?,?,?,?,?,?,?)", 
@@ -13,6 +15,7 @@ const insert = async (req) => {
     .then((data) => data[0])
 }
 
+// Selects an identity that isn't blocked
 const select = async (req, idnum) => {
     return await knex.raw(
         "SELECT Identity.handle, Identity.fullname, Identity.location, Identity.email, Identity.bdate, Identity.joined FROM Identity " +
@@ -22,6 +25,7 @@ const select = async (req, idnum) => {
     .then((data) => data[0])
 }
 
+// Selects an identity by handle and password
 const selectByHandleAndPassword = async (req) => {    
     return await knex.raw(
         "SELECT * FROM Identity WHERE handle = ? AND password = ?",
@@ -30,6 +34,7 @@ const selectByHandleAndPassword = async (req) => {
     .then((data) => data[0])
 }
 
+// Selects suggestions of mutual followers
 const selectSuggestions = async (req) => {
     return await knex.raw(
         "SELECT DISTINCT Identity2.* FROM Identity AS Identity1 " +        

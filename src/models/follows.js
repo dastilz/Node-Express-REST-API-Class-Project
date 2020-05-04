@@ -1,5 +1,6 @@
 const knex = require('../services/knex');  // define database based on above
 
+// Inserts a new followed account relationship
 const insert = async (req, followedId) => {
     return await knex.raw(
         "INSERT INTO Follows (follower, followed, tstamp) VALUES ((SELECT idnum FROM Identity WHERE handle = ? AND password = ?),?,?)", 
@@ -8,6 +9,7 @@ const insert = async (req, followedId) => {
     .then((data) => data[0])
 }
 
+// Deletes an existing followed account relationship
 const del = async (req, followedId) => {
     return await knex.raw(
         "DELETE FROM Follows WHERE follower = (SELECT idnum FROM Identity WHERE handle = ? AND password = ?) AND followed = ?", 

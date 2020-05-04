@@ -1,5 +1,6 @@
 const knex = require('../services/knex');  // define database based on above
 
+// Inserts a new story
 const insert = async (req) => {
     return await knex.raw(
         "INSERT INTO Story (idnum, chapter, url, expires, tstamp) VALUES ((SELECT idnum FROM Identity WHERE handle = ? AND password = ?),?,?,?,?)", 
@@ -8,6 +9,7 @@ const insert = async (req) => {
     .then((data) => data[0])
 }
 
+// Selects a story by ID
 const select = async (sidnum) => {
     return await knex.raw(
         "SELECT * FROM Story WHERE sidnum = ?", 
@@ -16,6 +18,7 @@ const select = async (sidnum) => {
     .then((data) => data[0])
 }
 
+// Selects a timeline of most recent stories and reprints
 const selectTimeline = async (req) => {
     return await knex.raw(
         "SELECT 'story' AS type, Identity1.fullname AS author, Story1.sidnum, Story1.chapter, Story1.tstamp AS posted FROM Story AS Story1 " +
