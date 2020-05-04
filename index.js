@@ -1,8 +1,10 @@
+// Author: David Stilz
+
 const express = require('express')
 const apiRoute = require('./src/api')
 const cors = require('cors')
 const bodyParser = require('body-parser')
-const config = require('./config')
+const config = require('./src/services/config')
 const app = express()
 
 // Allow CORS

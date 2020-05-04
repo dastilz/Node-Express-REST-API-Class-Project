@@ -1,3 +1,5 @@
+// Author: David Stilz
+
 const knex = require('knex')
 const config = require('./config')
 

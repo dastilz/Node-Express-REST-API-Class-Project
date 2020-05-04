@@ -1,3 +1,5 @@
+// Author: David Stilz
+
 CREATE DATABASE SMPDB;
 
 USE SMPDB;

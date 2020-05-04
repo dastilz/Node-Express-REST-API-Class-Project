@@ -1,3 +1,5 @@
+// Author: David Stilz
+
 const config = {}
 
 // Database config variables

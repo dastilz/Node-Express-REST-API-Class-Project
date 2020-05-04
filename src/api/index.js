@@ -1,3 +1,5 @@
+// Author: David Stilz
+
 // Import express library and router
 const express = require('express');
 const router = express.Router();
@@ -48,12 +50,16 @@ router.get('/exampleGETBDATE/:idnum', async (req, res) => {
 // Helper function to authenticate a request with username and password
 const authenticate = async (req) => {
     let identity = await Identity.selectByHandleAndPassword(req)
-    return identity.length > 0
+    if (identity.length > 0) {
+        return identity[0].idnum
+    } else {
+        return false
+    }
 }
 
 // Helper function to check if an account is blocked by another account
-const checkBlocked = async (req, blockedId) => {
-    let block = await Block.select(req, blockedId)
+const checkBlocked = async (requester, blockedId) => {
+    let block = await Block.select(requester, blockedId)
     return block.length > 0
 }
 
@@ -87,6 +93,24 @@ const handleError = async (err, res) => {
     }
 }
 
+// Helper function to perform Fisher-Yates shuffle
+// Source: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+const shuffle = (arr) => {
+    let count = arr.length
+
+    while (count > 0) {
+        let i = Math.floor(Math.random() * count)
+        count--
+
+        // Swap em!        
+        let temp = arr[count];
+        arr[count] = arr[i];
+        arr[i] = temp;
+    }
+
+    return arr
+}
+
 // Endpoint for creating users, not protected by authentication
 router.post('/createUser', async (req, res) => {
     try {
@@ -114,10 +138,11 @@ router.post('/seeUser/:idnum', async (req, res) => {
         let idnum = req.params.idnum
 
         // Check for authentication
-        if (await authenticate(reqBody)) {
+        let auth = await authenticate(reqBody)
+        if (auth) { 
 
             // Call Identity model to get select request from DB
-            let identity = await Identity.select(reqBody, idnum)
+            let identity = await Identity.select(auth, idnum)
 
             // If there is a selection, prepare the output
             if (identity.length > 0) {
@@ -152,10 +177,11 @@ router.post('/suggestions', async (req, res) => {
         let reqBody = req.body
 
         // Check for authentication
-        if (await authenticate(reqBody)) {  
+        let auth = await authenticate(reqBody)
+        if (auth) { 
 
             // Call Identity model to select suggestions
-            let suggestions = await Identity.selectSuggestions(reqBody)  
+            let suggestions = await Identity.selectSuggestions(auth)  
 
             // Helper storage variables
             let output = {}
@@ -192,6 +218,55 @@ router.post('/suggestions', async (req, res) => {
     }
 })
 
+// Endpoint for offering suggestions based off of mutual followers
+router.post('/suggestionRandom/:amount', async (req, res) => {
+    try {
+        // Get parameters from request
+        let reqBody = req.body
+        let amount = req.params.amount
+
+        // Check for authentication
+        let auth = await authenticate(reqBody)
+        if (auth) { 
+
+            // Call Identity model to select suggestions and then shuffle result into random placements
+            let suggestions = shuffle(await Identity.selectAllSuggestions(auth))
+
+            // Helper storage variables
+            let output = {}
+            let idnums = []
+            let handles = []
+
+            // Loop through suggestions and push contents to helper storage variables
+            for (let i=0; i<suggestions.length && i<amount; i++) {                    
+                idnums.push(suggestions[i].idnum)
+                handles.push(suggestions[i].handle)
+            }
+
+            // If there are selected suggestions, call join() to create a CSV line and set result as output attribute
+            if (suggestions.length > 0 && amount > 0) {
+                output.status = amount
+                output.idnums = idnums.join()
+                output.handles = handles.join()
+            
+            // If there are no suggestions found, send specified error
+            } else {
+                output = {"status": "0", "error": "no suggestions"}
+            }
+
+            res.send(output)
+
+        // Send specified error if bad authentication
+        } else {            
+            res.send({'status': '-10', 'error': 'Invalid credentials'})
+        }
+
+    // Call helper function to handle catched errors
+    } catch(err) {
+        handleError(err, res)
+    }
+})
+
 // Endpoint for creating a story, protected by authentication
 router.post('/poststory', async (req, res) => {
     try {
@@ -199,7 +274,8 @@ router.post('/poststory', async (req, res) => {
         let reqBody = req.body
 
         // Check for authentication
-        if (await authenticate(reqBody)) {  
+        let auth = await authenticate(reqBody)
+        if (auth) { 
 
             // Set the expires field to null if not defined in request
             if (reqBody.expires == undefined) {
@@ -207,7 +283,7 @@ router.post('/poststory', async (req, res) => {
             }
 
             // Call Story model to insert request into DB
-            await Story.insert(reqBody) 
+            await Story.insert(auth, reqBody) 
             res.send({'status': '1'})
             
         // Send specified error if bad authentication
@@ -229,7 +305,8 @@ router.post('/reprint/:sidnum', async (req, res) => {
         let sidnum = req.params.sidnum
 
         // Check for authentication
-        if (await authenticate(reqBody)) {  
+        let auth = await authenticate(reqBody)
+        if (auth) { 
 
             // Call Story model to select story from database
             let story = await Story.select(sidnum)
@@ -238,7 +315,7 @@ router.post('/reprint/:sidnum', async (req, res) => {
             if (story.length > 0) {
 
                 // Check if the story that is being reprinted is blocked by the author
-                if (!(blocked = await checkBlocked(reqBody, story[0].idnum))) {
+                if (!(blocked = await checkBlocked(auth, story[0].idnum))) {
 
                     // Set the likeit field to false if not defined in request
                     if (reqBody.likeit == undefined) {
@@ -246,7 +323,7 @@ router.post('/reprint/:sidnum', async (req, res) => {
                     }
 
                     // Call the Reprint model to insert request into DB
-                    await Reprint.insert(reqBody, sidnum)  
+                    await Reprint.insert(auth, sidnum)  
                     res.send({"status": "1"})
 
                 // Output specified error
@@ -276,13 +353,14 @@ router.post('/follow/:idnum', async (req, res) => {
         let reqBody = req.body
 
         // Check for authentication
-        if (await authenticate(reqBody)) {  
+        let auth = await authenticate(reqBody)
+        if (auth) { 
 
             // Check if the account trying to follow is blocked by the account trying to be followed
-            if (!(await checkBlocked(reqBody, idnum))) {
+            if (!(await checkBlocked(auth, idnum))) {
 
                 // Call the Follows model to insert request into DB
-                await Follows.insert(reqBody, idnum) 
+                await Follows.insert(auth, idnum) 
                 res.send({"status": "1"})
             
             // Output specified error
@@ -308,9 +386,11 @@ router.post('/unfollow/:idnum', async (req, res) => {
         let reqBody = req.body
 
         // Check for authentication
-        if (await authenticate(reqBody)) {  
+        let auth = await authenticate(reqBody)
+        if (auth) { 
+ 
             // Call Follows model to request delete to DB
-            let deleteStatus = await Follows.del(reqBody, idnum)
+            let deleteStatus = await Follows.del(auth, idnum)
 
             // Check if there has been a deletion
             if (deleteStatus.affectedRows > 0) {
@@ -339,10 +419,11 @@ router.post('/block/:idnum', async (req, res) => {
         let reqBody = req.body
 
         // Check for authentication
-        if (await authenticate(reqBody)) { 
+        let auth = await authenticate(reqBody)
+        if (auth) { 
 
             // Call the Block model to insert request into DB 
-            await Block.insert(reqBody, idnum)  
+            await Block.insert(auth, idnum)  
             res.send({"status": "1"})    
 
         // Send specified error if bad authentication
@@ -364,10 +445,11 @@ router.post('/unblock/:idnum', async (req, res) => {
         let reqBody = req.body
 
         // Check for authentication
-        if (await authenticate(reqBody)) { 
+        let auth = await authenticate(reqBody)
+        if (auth) { 
 
             // Call Block model to request delete to DB 
-            let deleteStatus = await Block.del(reqBody, idnum)
+            let deleteStatus = await Block.del(auth, idnum)
 
             // Check if there has been a deletion
             if (deleteStatus.affectedRows > 0) {
@@ -396,10 +478,98 @@ router.post('/timeline', async (req, res) => {
         let reqBody = req.body
 
         // Check for authentication
-        if (await authenticate(reqBody)) {  
+        let auth = await authenticate(reqBody)
+        if (auth) { 
 
             // Call Story model to select timeline
-            let timeline = await Story.selectTimeline(reqBody)  
+            let timeline = await Story.selectTimeline(auth, reqBody)  
+
+            // Helper variables
+            let output = {}
+            let count = 0
+
+            // Check if timeline contents exist first, otherwise keep output an empty object
+            if (timeline[0].length > 0) {
+
+                // Loop through timeline contents and create specified output object
+                for (item of timeline[0]) {
+
+                    // Convert JavaScript date to SQL compatible timestamp
+                    item.posted = item.posted.toISOString().slice(0, 19).replace('T', ' ')
+                    output[count] = timeline[0][count] 
+                    count++
+                }
+            }            
+
+            // Stringify any object contents if they aren't strings already
+            res.send(await JSON.stringify(output))
+
+        // Send specified error if bad authentication
+        } else {            
+            res.send({'status': '-10', 'error': 'Invalid credentials'})
+        }
+
+    // Call helper function to handle catched errors
+    } catch(err) {
+        handleError(err, res)
+    }
+})
+
+// Endpoint for showing timeline of recently created stories and reprints of stories
+router.post('/HBD', async (req, res) => {
+    try {
+        // Get parameters from request
+        let reqBody = req.body
+
+        // Check for authentication
+        let auth = await authenticate(reqBody)
+        if (auth) { 
+
+            // Call Story model to select timeline
+            let birthdays = await Identity.selectBirthdays(auth)                   
+            
+            // Loop through birthdays
+            for (item of birthdays) {
+
+                // Convert JavaScript date to SQL compatible date
+                item.bdate = item.bdate.toISOString().slice(0, 10)
+                item.joined = item.joined.toISOString().slice(0, 10)
+
+                // Create a story for each birthday
+                let insertReq = {}
+                insertReq.chapter = "HAPPY BIRTHDAY " + item.fullname
+                insertReq.url = "https://gph.is/g/aQNN1yR"
+                insertReq.expires = null
+
+                await Story.insert(item.idnum, insertReq)
+            }
+
+            // Stringify any object contents if they aren't strings already
+            res.send(birthdays)
+
+        // Send specified error if bad authentication
+        } else {            
+            res.send({'status': '-10', 'error': 'Invalid credentials'})
+        }
+
+    // Call helper function to handle catched errors
+    } catch(err) {
+        handleError(err, res)
+    }
+})
+
+// Endpoint for showing timeline of recently created stories and reprints of stories
+router.post('/searchstory', async (req, res) => {
+    try {
+        // Get parameters from request
+        let reqBody = req.body
+
+        // Check for authentication
+        let auth = await authenticate(reqBody)
+        if (auth) { 
+
+            // Call Story model to select timeline
+            let timeline = await Story.selectTimelineSearch(auth, reqBody)  
 
             // Helper variables
             let output = {}
