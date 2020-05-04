@@ -73,14 +73,13 @@ const selectAllSuggestions = async (requester) => {
 }
 
 const selectBirthdays = async (requester) => {
-    futureDate.setDate(futureDate.getDate() + 7)
     return await knex.raw(
         "SELECT Identity2.* FROM Identity AS Identity1 " +        
             "INNER JOIN Follows " +
                 "ON Identity1.idnum = Follows.follower " +
             "INNER JOIN Identity AS Identity2 " +
                 "ON Identity2.idnum = Follows.followed " +
-            "WHERE Identity1.idnum = ? DAY(Identity2.bdate) >= DAY(CURDATE()) AND DAY(Identity2.bdate) <= DAY(ADDDATE(CURDATE(), INTERVAL 7 DAY)) AND MONTH(Identity2.bdate) = MONTH(CURDATE())",
+            "WHERE Identity1.idnum = ? AND DAY(Identity2.bdate) >= DAY(CURDATE()) AND DAY(Identity2.bdate) <= DAY(ADDDATE(CURDATE(), INTERVAL 7 DAY)) AND MONTH(Identity2.bdate) = MONTH(CURDATE())",
         [requester]
     )
     .then((data) => data[0])
