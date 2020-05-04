@@ -59,7 +59,6 @@ const authenticate = async (req) => {
 
 // Helper function to check if an account is blocked by another account
 const checkBlocked = async (requester, blockedId) => {
-    console.log(requester, blockedId)
     let block = await Block.select(requester, blockedId)
     return block.length > 0
 }
@@ -315,7 +314,6 @@ router.post('/reprint/:sidnum', async (req, res) => {
             // If a story is found...
             if (story.length > 0) {
 
-                console.log(auth, story[0].idnum)
                 // Check if the story that is being reprinted is blocked by the author
                 if (!(blocked = await checkBlocked(auth, story[0].idnum))) {
 
@@ -325,7 +323,7 @@ router.post('/reprint/:sidnum', async (req, res) => {
                     }
 
                     // Call the Reprint model to insert request into DB
-                    await Reprint.insert(auth, sidnum)  
+                    await Reprint.insert(auth, reqBody, sidnum)  
                     res.send({"status": "1"})
 
                 // Output specified error
