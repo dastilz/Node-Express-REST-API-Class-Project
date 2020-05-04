@@ -291,6 +291,11 @@ router.post('/timeline', async (req, res) => {
 
         if (await authenticate(reqBody)) {  
             let timeline = await Story.selectTimeline(reqBody)  
+            if (timeline[0].length > 0) {
+                for (item of timeline[0]) {
+                    item.posted = item.posted.toISOString().slice(0, 19).replace('T', ' ')
+                }
+            }
             res.send(timeline[0])
         } else {            
             res.send({'status': '-10', 'error': 'Invalid credentials'})

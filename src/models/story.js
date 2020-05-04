@@ -35,8 +35,9 @@ const selectTimeline = async (req) => {
                 "ON Reprint.idnum = Follows2.followed AND Follows2.follower = (SELECT idnum FROM Identity WHERE handle = ? AND password = ?) " + 
             "WHERE Story2.tstamp <= ? AND Story2.tstamp >= ? " +
                 "AND (SELECT idnum FROM Identity WHERE handle = ? AND password = ?) NOT IN (SELECT Block.blocked FROM Block WHERE Block.idnum = Follows2.followed) " +
+                "AND (SELECT idnum FROM Identity WHERE handle = ? AND password = ?) NOT IN (SELECT Block.blocked FROM Block WHERE Block.idnum = Story2.idnum)" +
             "ORDER BY posted DESC",
-        [req.handle, req.password, req.newest, req.oldest, req.handle, req.password, req.handle, req.password, req.newest, req.oldest, req.handle, req.password]
+        [req.handle, req.password, req.newest, req.oldest, req.handle, req.password, req.handle, req.password, req.newest, req.oldest, req.handle, req.password, req.handle, req.password]
     )
 }
 
