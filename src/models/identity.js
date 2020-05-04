@@ -84,7 +84,7 @@ const selectBirthdays = async (requester) => {
             "INNER JOIN Identity AS Identity2 " +
                 "ON Identity2.idnum = Follows.followed " +
             "WHERE Identity1.idnum = ? AND DATE_FORMAT(Identity2.bdate, '%m-%d') <= DATE_FORMAT(NOW() + INTERVAL +7 DAY), '%m-%d') AND DATE_FORMAT(Identity2.bdate, %m-%d') >= DATE_FORMAT(NOW(), '%m-%d')",
-        [requester, futureDate.toISOString().substring(0,10), currentDate.toISOString().substring(0,10)]
+        [requester]
     )
     .then((data) => data[0])
 }
