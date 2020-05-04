@@ -15,7 +15,7 @@ const insert = async (req) => {
 
 const select = async (req, idnum) => {
     return await knex.raw(
-        "SELECT Identity.fullname, Identity.location, Identity.email, Identity.bdate, Identity.joined FROM Identity " +
+        "SELECT Identity.handle, Identity.fullname, Identity.location, Identity.email, Identity.bdate, Identity.joined FROM Identity " +
             "WHERE Identity.idnum = ? AND (SELECT idnum FROM Identity WHERE handle = ? AND password = ?) NOT IN (SELECT Block.blocked FROM Block WHERE Block.idnum = Identity.idnum)",
         [idnum, req.handle, req.password]
     )

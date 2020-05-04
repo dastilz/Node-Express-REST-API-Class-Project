@@ -81,7 +81,8 @@ const handleError = async (err, res) => {
 // Endpoint for creating users, not protected by authentication
 router.post('/createUser', async (req, res) => {
     try {
-        let identity = await Identity.insert(req.body)
+        let reqBody = req.body
+        let identity = await Identity.insert(reqBody)
         let id = identity.insertId.toString()
         res.status(200).send({"status": id})
 
@@ -291,12 +292,18 @@ router.post('/timeline', async (req, res) => {
 
         if (await authenticate(reqBody)) {  
             let timeline = await Story.selectTimeline(reqBody)  
+            let output = {}
+            let count = 0
+
             if (timeline[0].length > 0) {
                 for (item of timeline[0]) {
                     item.posted = item.posted.toISOString().slice(0, 19).replace('T', ' ')
+                    output[count] = timeline[0][count] 
+                    count++
                 }
-            }
-            res.send(timeline[0])
+            }            
+            res.send(await JSON.stringify(output))
+
         } else {            
             res.send({'status': '-10', 'error': 'Invalid credentials'})
         }
