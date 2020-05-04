@@ -96,7 +96,7 @@ curl -d '{"handle":"@test1", "password":"password", "chapter":"Chapter 1", "url"
 curl -d '{"handle":"@test1", "password":"password", "chapter":"Chapter 2", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 curl -d '{"handle":"@test1", "password":"password", "chapter":"Chapter 3", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 curl -d '{"handle":"@test2", "password":"password", "chapter":"Chapter 4", "url":"http://domain.com"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
-curl -d '{"handle":"@test2", "password":"password", "chapter":"Chapter 5", "url":"http://domain.com", "expires": "2020-05-01}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
+curl -d '{"handle":"@test2", "password":"password", "chapter":"Chapter 5", "url":"http://domain.com", "expires": "2020-05-01"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 curl -d '{"handle":"@test3", "password":"password", "chapter":"Chapter 6", "url":"http://domain.com", "expires": "2020-05-04"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 curl -d '{"handle":"@test3", "password":"password", "chapter":"Chapter 7", "url":"http://domain.com", "expires": "2025-05-06"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
 curl -d '{"handle":"@test4", "password":"password", "chapter":"Chapter 8", "url":"http://domain.com", "expires": "2025-05-10"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/poststory
@@ -157,3 +157,6 @@ curl -d '{"handle":"@test3", "password":"password", "search": "HAPPY BIRTHDAY", 
 curl -d '{"handle":"@test4", "password":"password", "search": "HAPPY BIRTHDAY", "newest":"2030-01-01 00:00:00", "oldest":"2000-01-01 00:00:00"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/searchstory
 curl -d '{"handle":"@test5", "password":"password", "search": "HAPPY BIRTHDAY", "newest":"2030-01-01 00:00:00", "oldest":"2000-01-01 00:00:00"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/searchstory
 curl -d '{"handle":"@test6", "password":"password", "search": "HAPPY BIRTHDAY", "newest":"2030-01-01 00:00:00", "oldest":"2000-01-01 00:00:00"}' -H "Content-Type: application/json" -X POST http://localhost:9990/api/searchstory
+
+# CLEAN UP STORY AND REPRINT QUERY
+# DELETE Story1, Reprint1 FROM Story AS Story1 INNER JOIN Reprint AS Reprint1 ON Story1.sidnum = Reprint1.sidnum WHERE UNIX_TIMESTAMP(Story1.expires) <= UNIX_TIMESTAMP();
