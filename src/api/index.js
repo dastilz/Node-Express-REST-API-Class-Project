@@ -26,10 +26,10 @@ router.get('/status', (req, res) => {
 router.get('/exampleGETBDATE/:idnum', async (req, res) => {
     try {
         let idnum = req.params.idnum
-        let dbRes = await Identity.getBdateByIdnum(idnum)    
-        if (dbRes != []) {
+        let identity = await Identity.getBdateByIdnum(idnum)    
+        if (identity != []) {
             let output = {}
-            output.bdate = dbRes.bdate.toISOString().substring(0,10)    
+            output.bdate = identity[0].bdate.toISOString().substring(0,10)    
             res.send(output)
         } else {
             res.send({})
