@@ -10,7 +10,7 @@
 ## SETUP
 - Create database with my SMP.sql script (Make sure to change privilege grantings)
 - Run 'npm install' in terminal
-- In /src/services/config.js, set username and password to appropriate set mysql database username and password
+- In /src/services/config.js, set username and password to appropriate mysql database username and password
 - Run 'npm install' (don't worry about warnings, it should run even with warnings, at least it did on my VM)
 - Run 'npm run server'
 
